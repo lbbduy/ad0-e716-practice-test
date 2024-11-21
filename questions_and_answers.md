@@ -355,3 +355,128 @@ _Choose 1 option._
 - Create a custom controller and layout to generate the resulting markup based on the provided parameters and call it via AJAX from the `preview.js` file.
 
 _Choose 1 option._
+
+
+### 19. A code audit revealed that a project contains an `Acme\Blog\CustomClass` that uses direct SQL queries:
+```php
+
+public function getBlogPostsData(string $postName, \Zend_Db_Adapter_Pdo_Mysql $connection): array
+{
+    //using direct SQL queries for performance
+    return $connection->query("SELECT * FROM blog_post WHERE name LIKE $postName") ->fetchAll();
+}
+```
+### Which two methods can be used to make the code resistant to SQL Injection attacks? (Choose two.):
+
+- Refactor CustomClass to use `\Magento\Framework\DB\Adapter\AdapterInterface` instead of `\Zend_Db_Adapter_Pdo_Mysql` so Magento can apply built-in sanitization methods automatically: 
+```php
+public function getBlogPostsData(string $postName, \Magento\Framework\DB\Adapter\AdapterInterface $connection): array
+{
+  return $connection->query("SELECT * FROM blog_post WHERE name LIKE $postName")->fetchAll();
+}
+```
+
+- Create a model, resource model and a collection. Refactor the class to include a collection factory and use the collection to load the data:
+```php
+public function getBlogPostsData(string $postName): array
+{
+  /** @var \Acme\Blog\Model\ResourceModel\BlogPost\Collection $collection */
+  $collection = $this->collectionFactory->create();
+  $collection->addFieldToFilter('name', ['like' => $postName]);
+  return $collection->getItems();
+}
+```
+☝️
+
+- Use a prepared statement to sanitize the input:
+```php
+public function getBlogPostsData(string $postName, \Zend_Db_Adapter_Pdo_Mysql $connection): array
+{
+  return $connection->query("SELECT * FROM blog_post WHERE name LIKE ?", [$postName])->fetchAll();
+}
+```
+☝️
+
+- Sanitize the input by escaping HTML special characters using the `htmlspecialchars()` function:
+```php
+public function getBlogPostsData(string $postName, \Zend_Db_Adapter_Pdo_Mysql $connection): array
+{
+  return $connection->query("SELECT * FROM blog_post WHERE name LIKE htmlspecialchars($postName)") ->fetchAll();
+}
+```
+
+_Choose 2 options._
+
+
+### 20. A module contains the `\Vendor\Module\CustomValidatorPool` class and has an array of validator classes in the constructor.
+### The following two validators are added in the module `etc/di.xml` file:
+```xml
+<type name="Vendor\Module\Model\CustomValidatorPool">
+    <arguments>
+        <argument name="validators" xsi:type="array">
+            <item name="validator1" xsi:type="string">Vendor\Module\Model\Validator1</item>
+            <item name="validator2" xsi:type="string">Vendor\Module\Model\Validator2</item>
+        </argument>
+    </arguments>
+</type>
+```
+### There is also one validator added in the `etc/adminhtml/di.xml` file:
+
+```xml
+<type name="Vendor\Module\Model\CustomValidatorPool">
+<arguments>
+    <argument name="validators" xsi:type="array">
+        <item name="validator2" xsi:type="string">Vendor\Module\Model\AdminSpecificValidator2</item>
+    </argument>
+</arguments>
+</type>
+```
+### When `\Vendor\Module\CustomValidatorPool` gets instantiated in the `adminhtml` area, what will it contain in the validators property?
+    
+- An array with exactly two elements containing `validator1` item specified in `etc/di.xml` and `validator2` item specified in `etc/adminhtml/di.xml`:
+```php
+[
+  'validator1' => {Vendor\Module\Model\Validator1}
+  'validator2' => {Vendor\Module\Model\AdminSpecificValidator2}
+]
+```
+
+- An array with exactly one element containing the validator specified in etc/adminhtml/di.xml:
+```php
+[
+   'validator2' => {Vendor\Module\Model\AdminSpecificValidator2}
+]
+```
+☝️
+
+- An array with exactly three elements containing the validator1 and validator2 items specified in etc/di.xml and validator2 items specified in etc/adminhtml/di.xml
+```php
+[
+   0 => {Vendor\Module\Model\Validator1},
+   1 => {Vendor\Module\Model\Validator2},
+   2 => {Vendor\Module\Model\AdminSpecificValidator2}
+]
+```
+
+_Choose 1 option._
+
+_Preference: https://magento.stackexchange.com/a/139912_
+
+
+### 21. An Adobe Commerce developer is tasked with developing a module for a service that requires the creation of a .txt file in the document root of the site. The contents of this file are supposed to be updated daily with data regarding the products added during the day. The file is fetched by the service at 7PM. The production environment on which the module will be deployed is composed of two frontend servers.
+### How can this be achieved by the developer?
+
+- This cannot be done inside of Magento since the file is in the document root, server redirects will be needed to redirect to a regular custom controller in charge of generating the data on the fly.
+- **This can be done inside of Magento by creating a router in `etc/frontend/di.xml` that will match the filename and internally redirect to a regular custom controller in charge of generating the data on the fly.** 👈
+- This can be done inside of Magento by declaring a cron job in `etc/crontab.xml` of the module and the class that will prepare the contents of the file and write them in the text file in Magento's root folder everyday at 6PM.
+    
+_Choose 1 option._
+
+
+### 22. Which scope do cron tasks execute in?
+    
+- Store
+- **Store View** 👈
+- Website
+
+_Choose 1 option._
