@@ -335,7 +335,7 @@ _Choose 1 option._
 ```php
 public function afterToHtml(\Vendor\CustomCatalog\Block\Product\ListProduct $subject, $result) {
     $subject->addAttribute('custom_attribute');
-    return $result;
+    return $resu<
 }
 ```
 ### Why does this not work correctly?
@@ -478,5 +478,211 @@ _Choose 1 option._
 - Store
 - **Store View** 👈
 - Website
+
+_Choose 1 option._
+
+
+### 23. An Adobe Commerce developer is tasked with adding a new block on every page of the site. The contents of this block are supposed to vary depending on the gender of the customer when the customer is logged in. This is a restricted site, only logged in users can access it. The developer has just finished developing the block which is now able to display different contents depending on the current customer available in `\Magento\Customer\Model\Session`
+
+- **Create a before plugin on `\Magento\Framework\App\Http\Context::getVaryString`, use the `setValue()` method on the subject with a chosen key and the value of the gender of the current customer, and add the block to the default handle.**  👈
+- Create an observer on the `load_layout_before` event, get the update from the layout using `$observer->getLayout()`, and use the `createBlock()` method to add the block to the layout.
+- Create a new controller extending `\Magento\Framework\App\Action\Action` with a layout handle containing the block with a `cacheable="false"` property. Add another block to the default handle in charge of making a systematic ajax call to the newly created controller and render the output.
+
+_Preference: https://developer.adobe.com/commerce/php/development/cache/page/public-content/#configure-page-variations_
+
+
+### 24. An Adobe Commerce developer is trying to create a console command in a custom module and is receiving the following error when they try to execute their command in the terminal: The command defined in `< Command class >` cannot have an empty name.
+### What are two valid ways to resolve this error and allow the command to run? (Choose two.)
+
+- Override the `getName()` method of the command class to return the name:
+```php
+protected function getName()
+{
+    return 'my:command:name';<br>
+}
+```
+- Declare a value for `$name` argument of the command via `di.xml`: 👈
+```xml
+
+<type name="Vendor\CommandExample\Console\Command\MyCommand">
+    <arguments>
+        <argument name="name" xsi:type="string">my: command: name</argument>
+    </arguments>
+</type>
+```
+
+- Assign the desired name to the `CLI_COMMAND_NAME` constant of the command class: <br> `const CLI_COMMAND_NAME = 'my: command: name';`
+- Override the `configure` method of the command `class` and set the `name`: 👈
+```php
+protected function configure() {
+  $this->setName('my:command:name');
+  // ... etc etc
+  parent::configure();
+}
+```
+
+_Choose 2 options._
+
+
+### 25. A developer is working with a custom module and needs to use `virtualType` with the class constructor array arguments in the `di.xml`. How would the developer pass an array `['one', 'two']` as an argument to `virtualType` using the `di.xml`?
+
+- ```xml
+  <argument name="custom data" xsi:type="array" data="one, two"/>
+  ```
+- ```xml
+  <argument name="custom_data" xsi:type="array">one, two</argument>
+  ```
+
+- ```xml
+  <argument name="custom_data" xsi:type="object">
+      <item name="0" xsi:type="string">one</item>
+      <item name="1" xsi:type="string">two</item>
+  </argument>
+  ```
+
+- ```xml
+  <argument name="custom_data" xsi:type="array">
+    <item name="0" xsi:type="string">one</item>
+    <item name="1" xsi:type="string">two</item>
+  </argument>
+  ```
+  ☝️
+
+_Choose 1 option._
+
+
+### 26. An Adobe Commerce developer is tasked with extending the functionality of an existing third party module that is already installed. The module creates a table using an `InstallSchema.php` script and the developer would like to rename a column in the table. 
+### Keeping best practices in mind, how would the developer rename the column in this table?
+
+- Create an `UpgradeSchema.php` script to rename the column using the `changeColumn()` method on the connection.
+- **Create a `Schema Patch` and implement the `apply()` method to rename the column using the `changeColumn()` method.** 👈
+- Create a `db_schema.xml` file to add a new column with the `onCreate="migrateDataFrom(old_column)"` attribute on the column node.
+
+_Choose 1 option._
+
+### 27. A store needs to have a custom product attribute of type multiselect, so the Adobe Commerce developer created it via Data patch. The attribute was successfully created with provided backend & frontend models:
+```php
+$catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+$attrParams = [
+    'type' => 'text',
+    'label' => 'Types of skin',
+    'input' => 'multiselect',
+    'required' => 0,
+    'visible_on_front' => 1,
+    'global' => 0,
+    'backend' => \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend::class,
+    'frontend' => \Magento\Eav\Model\Entity\Attribute\Frontend\DefaultFrontend::class,
+    'option' => [
+        'values' => [
+            'Sensitive',
+            'Dry',
+            'Oily',
+            'Scaly'
+        ]
+    ]
+];
+```
+### Later the developer noticed that a custom frontend model class is needed to perform some actions before returning the value, so another data patch is added to update the attribute:
+```php
+$catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+$attrParams = [
+    'frontend' => \VendorName\CustomModule\Model\Entity\Attribute\Frontend\HtmlList::class
+];
+$catalogSetup->updateAttribute('catalog_product', 'skin_types', $attrParams);
+```
+### Unfortunately, the frontend model changes were not applied.
+### What would be the possible issue?
+    
+- For compatibility purposes, the new frontend model class should extend from `Magento\Eav\Model\Entity\Attribute\Frontend\DefaultFrontend`.
+- Another parameter `frontend_class` with class name `VendorName\CustomModule\Model\Entity\Attribute\Frontend\HtmlList` should be passed.
+- **The attribute parameter name should be `frontend_model` rather than `frontend`.** 👈
+
+_Choose 1 option._
+
+
+### 28. Data patch `MyVendor\CategoryRecommendations\Setup\Patch\Data\UpdateCategoryRecommendation` has a dependencies on `MyVendor\ProductRecommendations\Setup\Patch\Data\UpdateProductRecommendation`.
+```php
+namespace MyVendor\CategoryRecommendations\Setup\Patch\Data;
+class UpdateCategoryRecommendation
+{
+    public static function getDependencies(): array
+    {
+        return [MyVendor\ProductRecommendations\Setup\Patch\Data\UpdateProductRecommendation::class];
+    }
+}
+```
+### The module `MyVendor\ProductRecommendation` is disabled and the `UpdateProductRecommendation` has not yet been applied.
+### What would be the result of the command `bin/magento setup:upgrade`?
+
+- Only `UpdateCategoryRecommendation` will be applied, as dependencies from disabled module are skipped.
+- **Both patches `UpdateProductRecommendation` and `UpdateCategoryRecommendation` are applied.** 👈
+- It will raise an error when applying `UpdateCategoryRecommendation` as it depends on a not applied patch from a disabled module.
+
+_Choose 1 option._
+
+### 29. An Adobe Commerce Developer is tasked with writing an importer for a custom entity in a module they plan on listing in the marketplace. After completing the development they decide they should provide a sample of the structure required for the import file.
+### How would they provide this through the admin panel?
+
+- **Include a sample file in the module's `Files/Sample` directory, and add the filename via DI to the `\Magento\ImportExport\Model\Import\SampleFileProvider` `$samples` array argument.** 👈
+- Include a sample import file in the module's `Files/Sample/` directory, and declare it using the `sampleFile` parameter on the relevant `<entity>` node in the modules `etc/import.xml` file.
+- Create a new class implementing `\Magento\ImportExport\Model\Import\SampleFileProviderInterface`, add an `importFormat()` method which returns the correct format, and add this to the `\Magento\Import Export\Model\Import\SampleFileProvider $samples` array argument.
+
+_Choose 1 option._
+
+
+### 30. An Adobe Commerce developer is tasked to create a category attribute that should be editable in the Magento admin panel. What would be the implementation?
+
+- Create a `db_schema.xml` to add the category attribute field and create the `catalog_attributes.xml` file in the modules `etc/` folder.
+- **Create a setup script to add the category attribute and create the `category_form.xml` file in the `view/adminhtml/ui_component/` directory in the module.** 👈
+- Create a setup script to add the category attribute, the field will be automatically displayed as it is the Magento 2 default behavior.
+
+_Choose 1 option._
+
+
+### 31. An Adobe Commerce developer is working with a database table and the client has asked to rename that existing table and move all data to the renamed table via `db_schema`. Which `XML` instruction would do this?
+
+- ```xml
+  <table name="new_declarative_table" migrateDataFromAnotherTable="old_declarative_table">
+  ```
+- ```xml
+  <table name="new_declarative_table" onCreate="migrateDataFromAnotherTable(old_declarative_table)">
+  ```
+  ☝️
+- ```xml
+  <table name="new_declarative_table" rename_from="old_declarative_table" migrateData="true">
+  ```
+- ```xml
+  <table name="new_declarative_table" onRename="migrateDataFromAnotherTable(old_declarative_table)">
+  ```
+
+_Choose 1 option._
+
+
+### 32. An Adobe Commerce developer is training a junior developer on their team and is explaining how Data and Schema patches work. While investigating an example patch from the Adobe Commerce dev docs, the junior developer asks what the purpose of the startSetup and endSetup calls are from this method:
+```php
+public function apply()
+{
+    $this->moduleDataSetup->getConnection()->startSetup();
+    //The code that you want apply in the patch
+    //Please note, that one patch is responsible only for one setup version
+    //So one UpgradeData can consist of few data patches
+    $this->moduleDataSetup->getConnection()->endSetup();
+}
+```
+### Which two statements are true regarding the purpose of these methods? (Choose two.)
+
+- `startSetup` sets the `connect_timeout` system variable to `600 (i.e., 10 minutes)` to avoid lost connections for complex actions and `endSetup` returns it to the `default`.
+- **`startSetup` sets the `foreign_key_checks` system variable to `0` and `endSetup` sets it back to `1`.** 👈
+- `startSetup` halts any running indexes or cron tasks to ensure the subsequent process is not interfered with and `endSetup` re-triggers them.
+- **`startSetup` sets the `sql_mode` system variable to `NO_AUTO_VALUE_ON_ZERO` and `endSetup` sets it back to ''.** 👈
+
+_Choose 2 options._
+
+### 33. A third-party vendor has developed a module to add blogging functionality to Adobe Commerce. The module creates a new database table to store the blog posts and includes an Admin grid to display the list of all posts.
+### Which action, at a minimum, would an Adobe Commerce developer take in order to add a search component to the grid that searches the contents of the `post_content` column?
+
+- Add a` <filterSearch name="fulltext"/>` and create a fulltext index for the `post_content` column in the database table. 
+- **Add a `<filterSearch name="fulltext"/>` node to the grid's `<listingToolbar>` node.** 👈
+- Add a `<filterSearch name="fulltext"/>` node to the `<column_name="post_content">` node.
 
 _Choose 1 option._
