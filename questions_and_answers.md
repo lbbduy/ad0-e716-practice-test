@@ -663,7 +663,7 @@ _Choose 1 option._
 public function apply()
 {
     $this->moduleDataSetup->getConnection()->startSetup();
-    //The code that you want apply in the patch
+    //The code that you want to apply in the patch
     //Please note, that one patch is responsible only for one setup version
     //So one UpgradeData can consist of few data patches
     $this->moduleDataSetup->getConnection()->endSetup();
@@ -684,5 +684,31 @@ _Choose 2 options._
 - Add a` <filterSearch name="fulltext"/>` and create a fulltext index for the `post_content` column in the database table. 
 - **Add a `<filterSearch name="fulltext"/>` node to the grid's `<listingToolbar>` node.** 👈
 - Add a `<filterSearch name="fulltext"/>` node to the `<column_name="post_content">` node.
+
+_Choose 1 option._
+
+
+
+### 34. A merchant requires a new export option for the order grid. They want to export orders and their total paid amount in a tab separated .txt file in order to reconcile this information with their bank accounts. How would an Adobe Commerce developer achieve this?
+
+```
+1.Add a new export option to the exportButton node within the sales_order_grid.xml with name="gridToTxt".
+2.Create a new converter class MyVendor\MyModule\Model\Export\ConvertToTxt.
+3.Add a Virtual Type for the MyVendor\MyModule\Model\Export\ConvertToTxt class specifying fileType=".txt" and fileSeparator="tab".
+4.Create a controller MyVendor\MyModule\Controller\Adminhtml\Export\GridToTxt.
+```
+
+```
+1.Create a new Controller MyVendor\MyModule\Controller\Adminhtml\Export\GridToTxt which inherits from the Magento\Sales\Model\Export\GridToCsv class.
+2.Add a new export option to the exportButton node within the sales_order_grid.xml pointing to MyVendor\MyModule\Controller\Adminhtml\Export\GridToTxt.
+3.Override the execute() method and change the file separator to tab and the file extension to .txt.
+```
+
+```
+1.Add a new export option to the exportButton node within the sales_order_grid.xml pointing to a custom MyVendor\MyModule\Controller\Adminhtml\Export\GridToTxt controller.
+2.Create a new converter ConvertToTxt and add the needed logic to within a getTxtFile() method.
+3.Call the getTxtFile() method within the MyVendor\MyModule\Controller\Adminhtml\Export\GridToTxt controller.
+```
+☝️
 
 _Choose 1 option._
