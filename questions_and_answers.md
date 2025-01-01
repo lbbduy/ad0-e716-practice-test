@@ -712,3 +712,22 @@ _Choose 1 option._
 ☝️
 
 _Choose 1 option._
+
+
+### 35. The ExtendedOrders module has a webapi defined in webapi.xml:
+```xml
+<route method="GET" url="/V1/extendedorders/orders">
+    <service class="MyVendor\ExtendedOrders\Adminhtml\Model\ExtendedOrders" method="getExtendedOrders"/>
+    <resources>
+        <resource ref="MyVendor_ExtendedOrders::view" />
+    </resources>
+</route>
+```
+### The service class `MyVendor\ExtendedOrders\Adminhtml\Model\ExtendedOrders` has const `ADMIN_RESOURCE` set to `MyVendor_ExtendedOrder::edit`. Given that resource `MyVendor_ExtendedOrder::edit` does NOT imply `MyVendor_ExtendedOrder::view`
+### Which resources would be needed to access the service?
+   
+- Only MyVendor_ExtendedOrder::edit.
+- Only MyVendor_ExtendedOrder::view. 👈
+- Both MyVendor_ExtendedOrder::view and MyVendor_ExtendedOrder::edit.
+
+_Choose 1 option._
